@@ -5,8 +5,8 @@ import scipy.misc as misc
 from scipy.ndimage import distance_transform_cdt
 import networkx as nx
 
-# A graph function is a networkx graph where a value
-# is associated to each node.
+# In the rest of the program, a graph function is a networkx graph
+# where a value is associated to each node.
 
 class UnionFind:
     """Slightly modified version of networkx.utils.union_find."""
