@@ -57,3 +57,20 @@ for i in range(n):
 #or using the first sample is not a good idea
 ideal = np.array([int(i/100) for i in range(1000)])
 np.sum(ideal != res)
+
+#confusion matrix
+confus = np.zeros((m,m))
+for i in range(n):
+    k = int(i*m/n)
+    l = int(res[i])
+    confus[k,l]+=1
+    
+fig, ax = plt.subplots(figsize=(8,8))
+# Using matshow here just because it sets the ticks up nicely. imshow is faster.
+ax.matshow(confus, cmap='seismic')
+
+for (i, j), z in np.ndenumerate(confus):
+    ax.text(j, i, '{:0.1f}'.format(z), ha='center', va='center',
+            bbox=dict(boxstyle='round', facecolor='white', edgecolor='0.3'))
+
+plt.show()
