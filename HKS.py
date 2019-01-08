@@ -1,9 +1,9 @@
-## from the net
+# Code taken from the net
 
-import numpy as np 
-from scipy import sparse 
+import numpy as np
+from scipy import sparse
 from scipy.sparse.linalg import lsqr, cg, eigsh
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import argparse
 
 
@@ -11,18 +11,18 @@ def makeLaplacianMatrixCotWeights(VPos, ITris, anchorsIdx = [], anchorWeights = 
     """
     Quickly compute sparse Laplacian matrix with cotangent weights and Voronoi areas
     by doing many operations in parallel using NumPy
-    
+
     Parameters
     ----------
-    VPos : ndarray (N, 3) 
+    VPos : ndarray (N, 3)
         Array of vertex positions
     ITris : ndarray (M, 3)
         Array of triangle indices
     anchorsIdx : list
-        A list of vertex indices corresponding to the anchor vertices 
+        A list of vertex indices corresponding to the anchor vertices
         (for use in Laplacian mesh editing; by default none)
     anchorWeights : float
-    
+
     Returns
     -------
     L : scipy.sparse (NVertices+anchors, NVertices+anchors)
@@ -31,20 +31,20 @@ def makeLaplacianMatrixCotWeights(VPos, ITris, anchorsIdx = [], anchorWeights = 
     N = VPos.shape[0]
     M = ITris.shape[0]
     #Allocate space for the sparse array storage, with 2 entries for every
-    #edge for eves ry triangle (6 entries per triangle); one entry for directed 
+    #edge for eves ry triangle (6 entries per triangle); one entry for directed
     #edge ij and ji.  Note that this means that edges with two incident triangles
-    #will have two entries per directed edge, but sparse array will sum them 
+    #will have two entries per directed edge, but sparse array will sum them
     I = np.zeros(M*6)
     J = np.zeros(M*6)
     V = np.zeros(M*6)
-    
+
     #Keep track of areas of incident triangles and the number of incident triangles
     IA = np.zeros(M*3)
     VA = np.zeros(M*3) #Incident areas
     VC = 1.0*np.ones(M*3) #Number of incident triangles
-    
+
     #Step 1: Compute cotangent weights
-    for shift in range(3): 
+    for shift in range(3):
         #For all 3 shifts of the roles of triangle vertices
         #to compute different cotangent weights
         [i, j, k] = [shift, (shift+1)%3, (shift+2)%3]
@@ -55,17 +55,17 @@ def makeLaplacianMatrixCotWeights(VPos, ITris, anchorsIdx = [], anchorWeights = 
         NMag = np.sqrt(np.sum(Normal**2, 1))
         cotAlpha = np.sum(dV1*dV2, 1)/NMag
         I[shift*M*2:shift*M*2+M] = ITris[:, i]
-        J[shift*M*2:shift*M*2+M] = ITris[:, j] 
+        J[shift*M*2:shift*M*2+M] = ITris[:, j]
         V[shift*M*2:shift*M*2+M] = cotAlpha
         I[shift*M*2+M:shift*M*2+2*M] = ITris[:, j]
-        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i] 
+        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i]
         V[shift*M*2+M:shift*M*2+2*M] = cotAlpha
         if shift == 0:
             #Compute contribution of this triangle to each of the vertices
             for k in range(3):
                 IA[k*M:(k+1)*M] = ITris[:, k]
                 VA[k*M:(k+1)*M] = 0.5*NMag
-    
+
     #Step 2: Create laplacian matrix
     L = sparse.coo_matrix((V, (I, J)), shape=(N, N)).tocsr()
     #Create the diagonal by summing the rows and subtracting off the nondiagonal entries
@@ -77,7 +77,7 @@ def makeLaplacianMatrixCotWeights(VPos, ITris, anchorsIdx = [], anchorWeights = 
     Counts = Counts.todia().data.flatten()
     RowScale = sparse.dia_matrix((3*Counts/Areas, 0), L.shape)
     L = L.T.dot(RowScale).T
-    
+
     #Step 3: Add anchors
     L = L.tocoo()
     I = L.row.tolist()
@@ -93,18 +93,18 @@ def makeLaplacianMatrixUmbrellaWeights(VPos, ITris, anchorsIdx = [], anchorWeigh
     """
     Quickly compute sparse Laplacian matrix with "umbrella weights" (unweighted)
     by doing many operations in parallel using NumPy
-    
+
     Parameters
     ----------
-    VPos : ndarray (N, 3) 
+    VPos : ndarray (N, 3)
         Array of vertex positions
     ITris : ndarray (M, 3)
         Array of triangle indices
     anchorsIdx : list
-        A list of vertex indices corresponding to the anchor vertices 
+        A list of vertex indices corresponding to the anchor vertices
         (for use in Laplacian mesh editing; by default none)
     anchorWeights : float
-    
+
     Returns
     -------
     L : scipy.sparse (NVertices+anchors, NVertices+anchors)
@@ -115,23 +115,23 @@ def makeLaplacianMatrixUmbrellaWeights(VPos, ITris, anchorsIdx = [], anchorWeigh
     I = np.zeros(M*6)
     J = np.zeros(M*6)
     V = np.ones(M*6)
-    
+
     #Step 1: Set up umbrella entries
-    for shift in range(3): 
+    for shift in range(3):
         #For all 3 shifts of the roles of triangle vertices
         #to compute different cotangent weights
         [i, j, k] = [shift, (shift+1)%3, (shift+2)%3]
         I[shift*M*2:shift*M*2+M] = ITris[:, i]
-        J[shift*M*2:shift*M*2+M] = ITris[:, j] 
+        J[shift*M*2:shift*M*2+M] = ITris[:, j]
         I[shift*M*2+M:shift*M*2+2*M] = ITris[:, j]
-        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i] 
-    
+        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i]
+
     #Step 2: Create laplacian matrix
     L = sparse.coo_matrix((V, (I, J)), shape=(N, N)).tocsr()
     L[L > 0] = 1
     #Create the diagonal by summing the rows and subtracting off the nondiagonal entries
     L = sparse.dia_matrix((L.sum(1).flatten(), 0), L.shape) - L
-    
+
     #Step 3: Add anchors
     L = L.tocoo()
     I = L.row.tolist()
@@ -153,14 +153,14 @@ def getEdges(VPos, ITris):
     I = np.zeros(M*6)
     J = np.zeros(M*6)
     V = np.ones(M*6)
-    for shift in range(3): 
+    for shift in range(3):
         #For all 3 shifts of the roles of triangle vertices
         #to compute different cotangent weights
         [i, j, k] = [shift, (shift+1)%3, (shift+2)%3]
         I[shift*M*2:shift*M*2+M] = ITris[:, i]
-        J[shift*M*2:shift*M*2+M] = ITris[:, j] 
+        J[shift*M*2:shift*M*2+M] = ITris[:, j]
         I[shift*M*2+M:shift*M*2+2*M] = ITris[:, j]
-        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i] 
+        J[shift*M*2+M:shift*M*2+2*M] = ITris[:, i]
     L = sparse.coo_matrix((V, (I, J)), shape=(N, N)).tocsr()
     return L.nonzero()
 
@@ -204,7 +204,7 @@ def getHeat(eigvalues, eigvectors, t, initialVertices, heatValue = 100.0):
         indices of the verticies that have an initial amount of heat
     heatValue : float
         The value to put at each of the initial vertices at the beginning of time
-    
+
     Returns
     -------
     heat : ndarray (N) holding heat values at each vertex on the mesh
@@ -233,7 +233,7 @@ def getHKS(VPos, ITris, K, ts):
         Number of eigenvalues/eigenvectors to use
     ts : ndarray (T)
         The time scales at which to compute the HKS
-    
+
     Returns
     -------
     hks : ndarray (N, T)
@@ -259,10 +259,10 @@ def randomlySamplePoints(VPos, ITris, NPoints, colPoints = True):
         Number of points to sample
     colPoints : boolean (default True)
         Whether the points are along the columns or the rows
-    
+
     Returns
     -------
-    (Ps : NDArray (NPoints, 3) array of sampled points, 
+    (Ps : NDArray (NPoints, 3) array of sampled points,
      Ns : Ndarray (NPoints, 3) of normals at those points   )
     """
     ###Step 1: Compute cross product of all face triangles and use to compute
@@ -451,18 +451,5 @@ def outHKS(path, path2, t, n):
     VPos, VColors, ITris = loadOffFile(path)
     n = min(VPos.shape[0], n)
     hks = getHKS(VPos, ITris, n, np.array([t]))
-    saveHKSColors(path2, VPos, hks[:, 0], ITris) 
+    saveHKSColors(path2, VPos, hks[:, 0], ITris)
     return
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, required=True, help="Path to OFF file for triangle mesh on which to compute the HKS")
-    parser.add_argument("--output", type=str, required=True, help="Path to OFF file which holds a colored mesh showing the HKS")
-    parser.add_argument("--t", type=float, required=True, help="Time parameter for the HKS")
-    parser.add_argument("--neigvecs", type=int, required=False, default = 200, help="Number of eigenvectors to use")
-
-    opt = parser.parse_args()
-    (VPos, VColors, ITris) = loadOffFile('homer.off')
-    neigvecs = min(VPos.shape[0], opt.neigvecs)
-    hks = getHKS(VPos, ITris, neigvecs, np.array([opt.t]))
-    saveHKSColors(opt.output, VPos, hks[:, 0], ITris)

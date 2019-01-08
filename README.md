@@ -10,9 +10,9 @@ Execute `pip install -r requirements.txt` to install dependencies. Then unzip `D
 
 The command to execute: `python3 exp1.py`
 
-This computes the 0-persistence diagrams of the HKS function at different times and plots them :
+This computes the 0-persistence diagrams of the HKS function at different times and plots them:
 
-<img src="README-rsrc/pers_diags.png" width="200" height="200">
+<img src="README-rsrc/pers_diags.png">
 
 ### Experiment 2: Hand Gesture Recognition
 
