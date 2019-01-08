@@ -1,4 +1,4 @@
-# Code taken from the net
+# Code taken from https://github.com/ctralie/pyhks/blob/master/HKS.py
 
 import numpy as np
 from scipy import sparse
