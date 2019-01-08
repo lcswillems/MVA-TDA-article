@@ -6,7 +6,7 @@ Here are some implementations of the expirements done in the paper "Persistence-
 
 Execute `pip install -r requirements.txt` to install dependencies. Then unzip `Data_Hand.zip` in a `Data_Hand` folder and `Data_Perso.zip` in a `Data_Perso` folder.
 
-### Experiment 1: Hand Gesture Recognition
+### Experiment 1: 3D Shape Retrieval
 
 The command to execute: `python3 exp1.py`
 
