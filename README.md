@@ -1,6 +1,6 @@
 # Reproduction of "Persistence-based Structural Recognition" experiments
 
-Here are some implementations of the expirements done in the paper "Persistence-based Structural Recognition" by Chunyuan Li, Maks Ovsjanikov and Frederic Chazal.
+Here are some implementations of the expirements done in the "Persistence-based Structural Recognition" paper by Chunyuan Li, Maks Ovsjanikov and Frederic Chazal.
 
 ## How to use?
 
