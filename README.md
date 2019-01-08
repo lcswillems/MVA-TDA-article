@@ -12,7 +12,7 @@ The command to execute: `python3 exp1.py`
 
 This computes the 0-persistence diagrams of the HKS function at different times and plots them :
 
-<img src="README-rsrc/pers-diags.png">
+<img src="README-rsrc/pers_diags.png">
 
 ### Experiment 2: Hand Gesture Recognition
 
