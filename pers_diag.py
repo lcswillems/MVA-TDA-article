@@ -53,22 +53,6 @@ class UnionFind:
             if r != heaviest:
                 self.parents[r] = heaviest
 
-def get_fcenter(pts, img):
-    """Return the fcenter graph function from
-    the hand boundary points and the hand image."""
-
-    img = distance_transform_cdt(img)
-    center = np.unravel_index(np.argmax(img), img.shape)
-
-    Gf = nx.Graph()
-    for i in range(len(pts)):
-        d = np.linalg.norm(pts[i] - center)
-        Gf.add_node(i, value=d)
-        if i != 0:
-            Gf.add_edge(i-1, i)
-
-    return Gf
-
 def persistence_pts_from_Gf(Gf):
     """Return the points of the persistence diagram of the given
     graph function. It uses the algorithm described in slide 107 of
@@ -115,14 +99,3 @@ def persistence_pts_from_Gf(Gf):
     persistence_pts = [(v['birth'], v['death']) for v in persistence_dict.values()]
     persistence_pts = np.array(persistence_pts)
     return persistence_pts
-
-basename = "G3_P1_6"
-
-pts = sio.loadmat("Data/Boundaries/{}.mat".format(basename))['hand_bounadry']
-img = misc.imread("Data/Precise Masks/{}.bmp".format(basename))
-
-Gf = get_fcenter(pts, img)
-persistence_pts = persistence_pts_from_Gf(Gf)
-
-plt.scatter(persistence_pts[:,1], persistence_pts[:,0])
-plt.show()

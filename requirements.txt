@@ -1,0 +1,3 @@
+persim
+networkx>=2
+tqdm

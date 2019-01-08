@@ -1,12 +1,5 @@
-from main_lucas import *
+from pers_diag import *
 from HKS import *
-
-#test1
-V, _, T = loadOffFile("Data/FAUST_002.off") ## loading the data with the parser
-n = 100
-#t = np.array([5,10,50, 100, 200])
-t = [0.01, 0.1]
-hks = getHKS(V, T, n, np.array(t))
 
 #enclose in fct
 def build_graph(V,T,hks):
@@ -14,7 +7,7 @@ def build_graph(V,T,hks):
     Gf = nx.Graph()
     for i in range(len(V)):
         Gf.add_node(i, value=hks[i])
-    
+
     for t in T:
         Gf.add_edge(t[0], t[1])
         Gf.add_edge(t[1], t[2])
@@ -33,6 +26,6 @@ def compute_diags(filename, t):
     return
 
 #test on several meshes with HKS on different scales
-compute_diags("Data/human1.off", [0.001, 0.01,0.1,1.,10.,100.])
-compute_diags("Data/FAUST_002.off", [0.001, 0.01,0.1,1.,10.,100.])
-compute_diags("Data/FAUST_006.off", [0.001, 0.01,0.1,1.,10.,100.])
+compute_diags("Data_Perso/human1.off", [0.001, 0.01,0.1,1.,10.,100.])
+compute_diags("Data_Perso/FAUST_002.off", [0.001, 0.01,0.1,1.,10.,100.])
+compute_diags("Data_Perso/FAUST_006.off", [0.001, 0.01,0.1,1.,10.,100.])
