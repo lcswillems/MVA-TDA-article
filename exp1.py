@@ -29,3 +29,5 @@ def compute_diags(filename, t):
 compute_diags("Data_Perso/human1.off", [0.001, 0.01,0.1,1.,10.,100.])
 compute_diags("Data_Perso/FAUST_002.off", [0.001, 0.01,0.1,1.,10.,100.])
 compute_diags("Data_Perso/FAUST_006.off", [0.001, 0.01,0.1,1.,10.,100.])
+
+plt.show()
